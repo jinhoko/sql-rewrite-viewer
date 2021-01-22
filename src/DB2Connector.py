@@ -1,5 +1,3 @@
-
-
 #  MIT License
 #
 #  Copyright (c) 2021 Jinho Ko
@@ -22,9 +20,6 @@
 #  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 #  SOFTWARE.
 
-
-import os
-import sys
 
 import ibm_db as db
 import sqlparse
@@ -54,7 +49,7 @@ def connectDB():
     return conn
 
 
-if __name__ == "__main__":
+def executionContext(queryForRewriteSQL):
 
     conn = connectDB()
 
@@ -64,9 +59,6 @@ if __name__ == "__main__":
 
     getRewrittenQuerySQL = "SELECT STATEMENT_TEXT FROM SYSTOOLS.EXPLAIN_STATEMENT ORDER BY EXPLAIN_TIME DESC LIMIT 1;"
 
-    queryForRewriteSQL = """
-        SELECT A.name FROM actor A JOIN cast C on A.aid = C.aid JOIN movie M on C.msid = M.mid WHERE M.title IN (SELECT M_IN.title FROM actor A_IN JOIN cast C_IN on A_IN.aid = C_IN.aid JOIN movie M_IN on C_IN.msid = M_IN.mid WHERE A_IN.name = 'Shawn Alfaro' )
-    """
 
   #  queryForRewriteSQL = "SELECT * FROM actor A;"
 
@@ -81,7 +73,8 @@ if __name__ == "__main__":
         rewrittenQueryTextWithHiddenSchema = rewrittenQueryText.replace(f"{DB2_DBSCHEMA}.", "")
 
         prettifiedSQL = sqlparse.format(rewrittenQueryTextWithHiddenSchema, reindent=True, keyword_case='upper')
-        print(prettifiedSQL)
+
+        return prettifiedSQL
 
     except Exception as e:
         print(e)

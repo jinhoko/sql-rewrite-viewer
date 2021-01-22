@@ -1,0 +1,76 @@
+<!--
+  ~ MIT License
+  ~
+  ~ Copyright (c) 2021 Jinho Ko
+  ~
+  ~ Permission is hereby granted, free of charge, to any person obtaining a copy
+  ~ of this software and associated documentation files (the "Software"), to deal
+  ~ in the Software without restriction, including without limitation the rights
+  ~ to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+  ~ copies of the Software, and to permit persons to whom the Software is
+  ~ furnished to do so, subject to the following conditions:
+  ~
+  ~ The above copyright notice and this permission notice shall be included in all
+  ~ copies or substantial portions of the Software.
+  ~
+  ~ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+  ~ IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+  ~ FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+  ~ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+  ~ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+  ~ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+  ~ SOFTWARE.
+  -->
+
+{% extends "bootstrap/base.html" %}
+{% import "bootstrap/wtf.html" as wtf %}
+
+{% block content %}
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.5.0/styles/github.min.css">
+
+<script>hljs.initHighlightingOnLoad();</script>
+
+
+<div class="container">
+  <h1>Optimized SQL Query Viewer</h1>
+  <p>Made by Jinho Ko. Rewritten with DB2 Query Optimizer</p>
+  <form action="" method="post" class="form" role="form">
+    {{ form.csrf_token }}
+    <div class="form-group required">
+      <label class="control-label" for="inputSQL">Input SQL : </label>
+      <textarea class="form-control" id="inputSQL" name="inputSQL" rows="10" required></textarea>
+    </div>
+    <input class="btn btn-default" id="submit" name="submit" type="submit" value="Submit">
+    <p></p>
+    <label class="control-label" for="inputSQL">Output SQL : </label>
+    <pre><code class="sql" id="outputSQL"></code></pre>
+  </form>
+</div>
+
+
+
+<script>
+  $(document).ready(function() {
+      $('form').on('submit', function(event) {
+        $.ajax({
+           data : {
+              inputSQL : $('#inputSQL').val(),
+              },
+              type : 'POST',
+              url : '/process'
+             })
+         .done( function(data) {
+          $('#outputSQL').text(data['response']).ajaxComplete(
+            document.querySelectorAll('pre code').forEach((block) => {
+              hljs.highlightBlock(block);
+            })
+      ).show();
+       });
+       event.preventDefault();
+     });
+  });
+</script>
+
+{% endblock %}
